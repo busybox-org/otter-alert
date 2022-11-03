@@ -26,23 +26,24 @@ RUN GO_VERSION=`go version|awk '{print $3" "$4}'` \
   && go mod tidy \
   && go get \
   && CGO_ENABLED=0 GOOS=linux go build -ldflags \
-  "-w -s -X 'main.Version=${VERSION}' \
-  -X 'main.GoVersion=${GO_VERSION}' \
-  -X 'main.GitUrl=${GIT_URL}' \
-  -X 'main.GitBranch=${GIT_BRANCH}' \
-  -X 'main.GitCommit=${GIT_COMMIT}' \
-  -X 'main.GitLatestTag=${GIT_LATEST_TAG}' \
-  -X 'main.BuildTime=${BUILD_TIME}'" \
-  -o main \
-  && strip --strip-unneeded main \
-  && upx --lzma main
+  "-w -s -X 'otteralert.Version=${VERSION}' \
+  -X 'otteralert.GoVersion=${GO_VERSION}' \
+  -X 'otteralert.GitUrl=${GIT_URL}' \
+  -X 'otteralert.GitBranch=${GIT_BRANCH}' \
+  -X 'otteralert.GitCommit=${GIT_COMMIT}' \
+  -X 'otteralert.GitLatestTag=${GIT_LATEST_TAG}' \
+  -X 'otteralert.BuildTime=${BUILD_TIME}'" \
+  -o otter-alert \
+  cmd/otter-alert.go \
+  && strip --strip-unneeded otter-alert \
+  && upx --lzma otter-alert
 
 FROM alpine:latest
 ARG APP_ROOT
 WORKDIR /app/
-COPY --from=0 ${APP_ROOT}/main .
+COPY --from=0 ${APP_ROOT}/otter-alert .
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories \
   && apk add --no-cache openssh jq curl busybox-extras \
   && rm -rf /var/cache/apk/*
 
-ENTRYPOINT ["/app/main"]
+ENTRYPOINT ["/app/otter-alert"]

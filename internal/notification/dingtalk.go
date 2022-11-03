@@ -6,9 +6,8 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
-	jsoniter "github.com/json-iterator/go"
 	"github.com/sirupsen/logrus"
-	"github.com/xmapst/otter-alert/utils"
+	"github.com/xmapst/otteralert/internal/utils"
 	"io"
 	"net/http"
 	"net/url"
@@ -16,20 +15,58 @@ import (
 	"time"
 )
 
-var (
-	httpClient = &http.Client{
-		Transport: &http.Transport{
-			Proxy:             http.ProxyFromEnvironment,
-			DisableKeepAlives: true,
-		},
-		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			return http.ErrUseLastResponse
-		},
-	}
-	json = jsoniter.ConfigCompatibleWithStandardLibrary
-)
+type dingTalkNotificationResponse struct {
+	ErrorMessage string `json:"errmsg"`
+	ErrorCode    int    `json:"errcode"`
+}
 
-type DingTalk struct {
+type dingTalkNotification struct {
+	MessageType string                          `json:"msgtype"`
+	Text        *dingTalkNotificationText       `json:"text,omitempty"`
+	Link        *dingTalkNotificationLink       `json:"link,omitempty"`
+	Markdown    *dingTalkNotificationMarkdown   `json:"markdown,omitempty"`
+	ActionCard  *dingTalkNotificationActionCard `json:"actionCard,omitempty"`
+	At          *dingTalkNotificationAt         `json:"at,omitempty"`
+}
+
+type dingTalkNotificationText struct {
+	Title   string `json:"title"`
+	Content string `json:"content"`
+}
+
+type dingTalkNotificationLink struct {
+	Title      string `json:"title"`
+	Text       string `json:"text"`
+	MessageURL string `json:"messageUrl"`
+	PictureURL string `json:"picUrl"`
+}
+
+type dingTalkNotificationMarkdown struct {
+	Title string `json:"title"`
+	Text  string `json:"text"`
+}
+
+type dingTalkNotificationAt struct {
+	AtMobiles []string `json:"atMobiles,omitempty"`
+	IsAtAll   bool     `json:"isAtAll,omitempty"`
+}
+
+type dingTalkNotificationActionCard struct {
+	Title             string                       `json:"title"`
+	Text              string                       `json:"text"`
+	HideAvatar        string                       `json:"hideAvatar"`
+	ButtonOrientation string                       `json:"btnOrientation"`
+	Buttons           []DingTalkNotificationButton `json:"btns,omitempty"`
+	SingleTitle       string                       `json:"singleTitle,omitempty"`
+	SingleURL         string                       `json:"singleURL"`
+}
+
+type DingTalkNotificationButton struct {
+	Title     string `json:"title"`
+	ActionURL string `json:"actionURL"`
+}
+
+type dingTalk struct {
 	Url    *url.URL
 	Secret string
 }
@@ -39,33 +76,33 @@ func newDingTalk(addr, secret string) (Notification, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &DingTalk{
+	return &dingTalk{
 		Url:    u,
 		Secret: secret,
 	}, nil
 }
 
-func (d *DingTalk) SendMarkdown(title, message string) {
-	var notification = &utils.DingTalkNotification{
+func (d *dingTalk) SendMarkdown(title, message string) {
+	var notification = &dingTalkNotification{
 		MessageType: "markdown",
-		Markdown: &utils.DingTalkNotificationMarkdown{
+		Markdown: &dingTalkNotificationMarkdown{
 			Title: title,
 			Text:  message,
 		},
-		At: &utils.DingTalkNotificationAt{
+		At: &dingTalkNotificationAt{
 			IsAtAll: true,
 		},
 	}
 	go d.retrySend(notification)
 }
 
-func (d *DingTalk) retrySend(message interface{}) {
+func (d *dingTalk) retrySend(message interface{}) {
 	_ = utils.Retry(3, "发送消息失败", func() error {
 		return d.Send(message)
 	})
 }
 
-func (d *DingTalk) Send(message interface{}) error {
+func (d *dingTalk) Send(message interface{}) error {
 	d.generateSign()
 	body, err := json.Marshal(message)
 	if err != nil {
@@ -91,7 +128,7 @@ func (d *DingTalk) Send(message interface{}) error {
 		logrus.Errorf("unacceptable response code %d", resp.StatusCode)
 		return fmt.Errorf("unacceptable response code %d", resp.StatusCode)
 	}
-	var robotResp utils.DingTalkNotificationResponse
+	var robotResp dingTalkNotificationResponse
 	enc := json.NewDecoder(resp.Body)
 	if err = enc.Decode(&robotResp); err != nil {
 		logrus.Error(err, "error decoding response from DingTalk")
@@ -105,7 +142,7 @@ func (d *DingTalk) Send(message interface{}) error {
 	return nil
 }
 
-func (d *DingTalk) generateSign() {
+func (d *dingTalk) generateSign() {
 	if d.Secret != "" {
 		timestamp := strconv.FormatInt(time.Now().UnixNano()/int64(time.Millisecond), 10)
 		stringToSign := []byte(timestamp + "\n" + d.Secret)

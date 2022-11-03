@@ -3,7 +3,7 @@ package engine
 import (
 	"fmt"
 	"github.com/sirupsen/logrus"
-	"github.com/xmapst/otter-alert/internal/otter"
+	"github.com/xmapst/otteralert/internal/otter"
 )
 
 func (e *Engine) recoverChannel(channelID int64) (title, message string) {
