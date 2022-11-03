@@ -25,7 +25,7 @@ Flags:
       --interval duration            monitoring interval. 
                                      --interval=5m (default 5m0s)
       --manager.database string      otter manager database address string. 
-                                     --manager.database=mysql://root:123456@localhost:3306/otter?charset=utf8&parseTime=True&loc=Local
+                                     --manager.database=user:pass@tcp(127.0.0.1:3306)/otter?charset=utf8&parseTime=True&loc=Local
       --manager.endpoint string      otter manager endpoint. 
                                      --manager.endpoint=http://127.0.0.1:8080
       --manager.password string      otter manager login password. 
@@ -41,5 +41,4 @@ Flags:
   -v, --version                      version for otter-alert
       --zookeeper strings            connection zookeeper address string. 
                                      --zookeeper=zk-node-1:2181,zk-node-2:2181,zk-node-3:2181
-
 ```
