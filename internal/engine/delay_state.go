@@ -3,6 +3,7 @@ package engine
 import (
 	"github.com/sirupsen/logrus"
 	"github.com/xmapst/otteralert/internal/cache"
+	"github.com/xmapst/otteralert/internal/utils"
 	"time"
 )
 
@@ -16,7 +17,7 @@ func (e *Engine) dalyState() {
 			if state != "START" {
 				continue
 			}
-			logrus.Warnf("通道%d延时 %s", failed.ChannelID, failed.Interval)
+			logrus.Warnf("通道%d延时 %s", failed.ChannelID, utils.FmtDuration(failed.Interval))
 			title, message := e.restartChannel(failed.ChannelID)
 			if title != "" && message != "" {
 				e.notification.SendMarkdown(title, message)

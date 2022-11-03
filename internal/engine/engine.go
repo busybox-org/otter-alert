@@ -7,6 +7,7 @@ import (
 	"github.com/xmapst/otteralert/internal/cache"
 	"github.com/xmapst/otteralert/internal/config"
 	"github.com/xmapst/otteralert/internal/notification"
+	"github.com/xmapst/otteralert/internal/utils"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -124,7 +125,7 @@ func (e *Engine) createChannelStateMsgText(failed cache.ChannelState) (string, s
 	title := fmt.Sprintf("## 通道 %s %s", *channel.Name, state)
 	message := fmt.Sprint(
 		"\n- 状态: ", failed.Status,
-		"\n- 持续: ", interval.String(),
+		"\n- 持续: ", utils.FmtDuration(interval),
 		"\n- 时间: ", time.Now().Format("2006-01-02 15:04:05"),
 	)
 	return title, title + message
@@ -143,7 +144,7 @@ func (e *Engine) createPipelineStateMsgText(failed cache.PipelineState) (string,
 	message := fmt.Sprint(
 		"\n- 通道: ", channel.Name,
 		"\n- 状态: ", failed.Status,
-		"\n- 持续: ", interval.String(),
+		"\n- 持续: ", utils.FmtDuration(interval),
 		"\n- 时间: ", time.Now().Format("2006-01-02 15:04:05"),
 	)
 	return title, title + message
