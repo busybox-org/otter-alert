@@ -7,6 +7,11 @@
 [x] 延时自愈  
 [x] 自动解挂
 
+## Deployment
+```shell
+kubectl apply -f https://raw.githubusercontent.com/xmapst/otter-alert/main/k8s.yaml
+```
+
 ## HELP
 ```shell
 # ./otteralert --help

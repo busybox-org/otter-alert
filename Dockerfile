@@ -1,6 +1,6 @@
 #docker build --network host --rm --build-arg APP_ROOT=/go/src/otteralter -t 172.16.127.171:10001/otteralter:<tag> -f Dockerfile .
 #0 ----------------------------
-FROM golang:1.17
+FROM golang:1.19
 ARG  APP_ROOT
 WORKDIR ${APP_ROOT}
 COPY ./ ${APP_ROOT}

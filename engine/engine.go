@@ -99,7 +99,7 @@ func (e *Engine) Run() {
 				if e.getChannelState(failed.ChannelID) != "START" {
 					continue
 				}
-				logrus.Warnf("通道%d延时", failed.Interval)
+				logrus.Warnf("通道%d延时 %s", failed.ChannelID, failed.Interval)
 				title, message := e.restartChannel(failed.ChannelID)
 				if title != "" && message != "" {
 					e.notification.SendMarkdown(title, message)

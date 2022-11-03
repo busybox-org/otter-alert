@@ -30,7 +30,8 @@ var (
 )
 
 type DingTalk struct {
-	Url string
+	Url    *url.URL
+	Secret string
 }
 
 func newDingTalk(addr, secret string) (Notification, error) {
@@ -38,19 +39,9 @@ func newDingTalk(addr, secret string) (Notification, error) {
 	if err != nil {
 		return nil, err
 	}
-	if secret != "" {
-		timestamp := strconv.FormatInt(time.Now().UnixNano()/int64(time.Millisecond), 10)
-		stringToSign := []byte(timestamp + "\n" + secret)
-		mac := hmac.New(sha256.New, []byte(secret))
-		mac.Write(stringToSign) // nolint: errcheck
-		signature := base64.StdEncoding.EncodeToString(mac.Sum(nil))
-		qs := u.Query()
-		qs.Set("timestamp", timestamp)
-		qs.Set("sign", signature)
-		u.RawQuery = qs.Encode()
-	}
 	return &DingTalk{
-		Url: u.String(),
+		Url:    u,
+		Secret: secret,
 	}, nil
 }
 
@@ -69,18 +60,19 @@ func (d *DingTalk) SendMarkdown(title, message string) {
 }
 
 func (d *DingTalk) retrySend(message interface{}) {
-	_ = utils.Retry(6, "发送消息失败", func() error {
+	_ = utils.Retry(3, "发送消息失败", func() error {
 		return d.Send(message)
 	})
 }
 
 func (d *DingTalk) Send(message interface{}) error {
+	d.generateSign()
 	body, err := json.Marshal(message)
 	if err != nil {
 		logrus.Error(err, "error encoding DingTalk request")
 		return err
 	}
-	httpReq, err := http.NewRequest("POST", d.Url, bytes.NewReader(body))
+	httpReq, err := http.NewRequest("POST", d.Url.String(), bytes.NewReader(body))
 	if err != nil {
 		logrus.Error(err, "error building DingTalk request")
 		return err
@@ -111,4 +103,18 @@ func (d *DingTalk) Send(message interface{}) error {
 	}
 	logrus.Info("message sent successfully")
 	return nil
+}
+
+func (d *DingTalk) generateSign() {
+	if d.Secret != "" {
+		timestamp := strconv.FormatInt(time.Now().UnixNano()/int64(time.Millisecond), 10)
+		stringToSign := []byte(timestamp + "\n" + d.Secret)
+		mac := hmac.New(sha256.New, []byte(d.Secret))
+		mac.Write(stringToSign) // nolint: errcheck
+		signature := base64.StdEncoding.EncodeToString(mac.Sum(nil))
+		qs := d.Url.Query()
+		qs.Set("timestamp", timestamp)
+		qs.Set("sign", signature)
+		d.Url.RawQuery = qs.Encode()
+	}
 }
