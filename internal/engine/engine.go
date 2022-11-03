@@ -18,10 +18,11 @@ type Engine struct {
 	zkConn   *zk.Conn
 	dbConn   *gorm.DB
 
-	notification    notification.Notification
-	manager         *config.Manager
-	channelService  *cache.ChannelStateService
-	pipelineService *cache.PipelineStateService
+	notification          notification.Notification
+	manager               *config.Manager
+	channelService        *cache.ChannelStateService
+	restartChannelService *cache.RestartChannelService
+	pipelineService       *cache.PipelineStateService
 }
 
 func New() *Engine {
@@ -31,6 +32,7 @@ func New() *Engine {
 		channelService: &cache.ChannelStateService{
 			Ch: make(chan cache.ChannelState, 10),
 		},
+		restartChannelService: &cache.RestartChannelService{},
 		pipelineService: &cache.PipelineStateService{
 			Ch: make(chan cache.PipelineState, 10),
 		},
@@ -79,8 +81,14 @@ func (e *Engine) Run() {
 			select {
 			case failed := <-e.channelService.Ch:
 				title, message = e.createChannelStateMsgText(failed)
+				if e.restartChannelService.Has(failed.ChannelID) {
+					if failed.Active {
+						e.restartChannelService.Delete(failed.ChannelID)
+					}
+					continue
+				}
 				// 解挂
-				if failed.Status == "PAUSE" {
+				if ChState[failed.Status] == 2 {
 					title, message = e.recoverChannel(failed.ChannelID)
 				}
 			case failed := <-e.pipelineService.Ch:

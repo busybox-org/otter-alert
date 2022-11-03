@@ -48,7 +48,7 @@ func (c *PipelineStateService) Delete(id int64, status string) {
 		return
 	}
 	err = cache.Delete(key)
-	if err != nil {
+	if err != nil && err != badger.ErrKeyNotFound {
 		logrus.Errorln(err)
 	}
 	res.Active = true

@@ -35,6 +35,7 @@ func (e *Engine) recoverChannel(channelID int64) (title, message string) {
 }
 
 func (e *Engine) restartChannel(channelID int64) (title, message string) {
+	e.restartChannelService.Add(channelID)
 	logrus.Warningln("重启通道", channelID)
 	otterApi := otter.NewOtter(e.manager.Endpoint, e.manager.Username, e.manager.Password)
 	err := otterApi.Login()

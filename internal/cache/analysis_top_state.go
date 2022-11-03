@@ -2,6 +2,7 @@ package cache
 
 import (
 	"fmt"
+	"github.com/dgraph-io/badger/v3"
 	"github.com/sirupsen/logrus"
 	"time"
 )
@@ -38,7 +39,7 @@ func (a *AnalysisTopStateService) Add(id, channelID int64, interval time.Duratio
 func (a *AnalysisTopStateService) Delete(id int64) {
 	key := fmt.Sprintf("%s%d", analysisTopStatKeyPrefix, id)
 	err := cache.Delete(key)
-	if err != nil {
+	if err != nil && err != badger.ErrKeyNotFound {
 		logrus.Errorln(err)
 	}
 }

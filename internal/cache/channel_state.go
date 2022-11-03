@@ -48,7 +48,7 @@ func (c *ChannelStateService) Delete(id int64, status string) {
 		return
 	}
 	err = cache.Delete(key)
-	if err != nil {
+	if err != nil && err != badger.ErrKeyNotFound {
 		logrus.Errorln(err)
 	}
 	res.Active = true
@@ -79,4 +79,29 @@ func (c *ChannelStateService) Trigger(interval time.Duration) {
 			}(k, v)
 		}
 	}
+}
+
+const restartChannelKeyPrefix = "restart_channel_stat:"
+
+type RestartChannelService struct{}
+
+func (r *RestartChannelService) Add(id int64) {
+	key := fmt.Sprintf("%s%d", restartChannelKeyPrefix, id)
+	err := cache.Add(key, &RestartChannelService{})
+	if err != nil {
+		logrus.Errorln(err)
+	}
+}
+
+func (r *RestartChannelService) Delete(id int64) {
+	key := fmt.Sprintf("%s%d", restartChannelKeyPrefix, id)
+	err := cache.Delete(key)
+	if err != nil && err != badger.ErrKeyNotFound {
+		logrus.Errorln(err)
+	}
+}
+
+func (r *RestartChannelService) Has(id int64) bool {
+	key := fmt.Sprintf("%s%d", restartChannelKeyPrefix, id)
+	return cache.Has(key)
 }
