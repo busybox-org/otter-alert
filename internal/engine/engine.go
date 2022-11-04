@@ -91,6 +91,11 @@ func (e *Engine) Run() {
 				// 解挂
 				if ChState[failed.Status] == 2 {
 					title, message = e.recoverChannel(failed.ChannelID)
+					if title == "" || message == "" {
+						channel := e.selectChannel(failed.ChannelID)
+						title = fmt.Sprintf("## 通道%s解挂成功", *channel.Name)
+						message = title
+					}
 				}
 			case failed := <-e.pipelineService.Ch:
 				title, message = e.createPipelineStateMsgText(failed)

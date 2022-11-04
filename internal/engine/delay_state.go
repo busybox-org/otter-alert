@@ -21,7 +21,7 @@ func (e *Engine) dalyState() {
 			logrus.Warnf("通道%d延时 %s", failed.ChannelID, utils.FmtDuration(failed.Interval))
 			title, message := e.restartChannel(failed.ChannelID)
 			if title == "" && message == "" {
-                channel := e.selectChannel(failed.ChannelID)
+				channel := e.selectChannel(failed.ChannelID)
 				title = fmt.Sprintf("## 通道%s恢复成功", *channel.Name)
 				message = title + fmt.Sprintf("\n- 延时: %s", utils.FmtDuration(failed.Interval))
 			}
