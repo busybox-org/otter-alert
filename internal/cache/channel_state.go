@@ -32,7 +32,7 @@ func (c *ChannelStateService) Add(id int64, status string) {
 		data.LastTime = time.Now()
 		c.Ch <- data
 	}
-	err := cache.Add(key, &data)
+	err := cache.Add(key, &data, 0)
 	if err != nil {
 		logrus.Errorln(err)
 	}
@@ -72,7 +72,7 @@ func (c *ChannelStateService) Trigger(interval time.Duration) {
 				}
 				c.Ch <- data
 				data.LastTime = time.Now()
-				err = cache.Add(k, &data)
+				err = cache.Add(k, &data, 0)
 				if err != nil {
 					logrus.Errorln(err)
 				}
@@ -87,7 +87,7 @@ type RestartChannelService struct{}
 
 func (r *RestartChannelService) Add(id int64) {
 	key := fmt.Sprintf("%s%d", restartChannelKeyPrefix, id)
-	err := cache.Add(key, &RestartChannelService{})
+	err := cache.Add(key, &RestartChannelService{}, 1*time.Minute)
 	if err != nil {
 		logrus.Errorln(err)
 	}

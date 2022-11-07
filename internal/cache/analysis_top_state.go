@@ -31,7 +31,7 @@ func (a *AnalysisTopStateService) Add(id, channelID int64, interval time.Duratio
 		a.Ch <- data
 		data.LastTime = time.Now()
 	}
-	err := cache.Add(key, &data)
+	err := cache.Add(key, &data, 0)
 	if err != nil {
 		logrus.Errorln(err)
 	}
@@ -60,7 +60,7 @@ func (a *AnalysisTopStateService) Trigger(interval time.Duration) {
 				}
 				a.Ch <- data
 				data.LastTime = time.Now()
-				err = cache.Add(k, &data)
+				err = cache.Add(k, &data, 0)
 				if err != nil {
 					logrus.Errorln(err)
 				}

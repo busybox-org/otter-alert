@@ -29,6 +29,11 @@ var rootCmd = &cobra.Command{
 }
 
 func init() {
+	var cstSh, err = time.LoadLocation(os.Getenv("TZ"))
+	if err != nil {
+		cstSh = time.FixedZone("CST", 8*3600)
+	}
+	time.Local = cstSh
 	registerSignalHandlers()
 	logrus.SetFormatter(&utils.ConsoleFormatter{})
 	logrus.SetLevel(logrus.DebugLevel)

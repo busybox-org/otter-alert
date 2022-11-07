@@ -32,7 +32,7 @@ func (c *PipelineStateService) Add(id int64, status string) {
 		data.LastTime = time.Now()
 		c.Ch <- data
 	}
-	err := cache.Add(key, &data)
+	err := cache.Add(key, &data, 0)
 	if err != nil {
 		logrus.Errorln(err)
 	}
@@ -72,7 +72,7 @@ func (c *PipelineStateService) Trigger(interval time.Duration) {
 				}
 				c.Ch <- data
 				data.LastTime = time.Now()
-				err = cache.Add(k, &data)
+				err = cache.Add(k, &data, 0)
 				if err != nil {
 					logrus.Errorln(err)
 				}

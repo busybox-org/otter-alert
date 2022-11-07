@@ -4,6 +4,7 @@ import (
 	"github.com/dgraph-io/badger/v3"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/sirupsen/logrus"
+	"time"
 )
 
 type Cache struct {
@@ -28,12 +29,15 @@ func New() error {
 	return nil
 }
 
-func (c *Cache) Add(key string, value interface{}) error {
+func (c *Cache) Add(key string, value interface{}, TTL time.Duration) error {
 	data, err := json.Marshal(value)
 	if err != nil {
 		return err
 	}
 	return c.db.Update(func(txn *badger.Txn) error {
+		if TTL != 0 {
+			return txn.SetEntry(badger.NewEntry([]byte(key), data).WithTTL(TTL))
+		}
 		return txn.Set([]byte(key), data)
 	})
 }

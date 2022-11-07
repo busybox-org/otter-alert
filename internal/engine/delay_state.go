@@ -38,7 +38,7 @@ func (e *Engine) dalyState() {
 					_p := e.selectPipeline(*pipeline.ID)
 					state := e.selectDelayStat(*pipeline.ID)
 					interval := time.Now().Sub(state.GMTModified)
-					if interval > 15*time.Minute {
+					if interval >= 15*time.Minute {
 						analysisTopState.Add(*pipeline.ID, *_p.ChannelID, interval)
 					} else {
 						analysisTopState.Delete(*pipeline.ID)
