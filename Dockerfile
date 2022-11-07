@@ -26,13 +26,13 @@ RUN GO_VERSION=`go version|awk '{print $3" "$4}'` \
   && go mod tidy \
   && go get \
   && CGO_ENABLED=0 GOOS=linux go build -ldflags \
-  "-w -s -X 'otteralert.Version=${VERSION}' \
-  -X 'otteralert.GoVersion=${GO_VERSION}' \
-  -X 'otteralert.GitUrl=${GIT_URL}' \
-  -X 'otteralert.GitBranch=${GIT_BRANCH}' \
-  -X 'otteralert.GitCommit=${GIT_COMMIT}' \
-  -X 'otteralert.GitLatestTag=${GIT_LATEST_TAG}' \
-  -X 'otteralert.BuildTime=${BUILD_TIME}'" \
+  "-w -s -X 'github.com/xmapst/otteralert.Version=${VERSION}' \
+  -X 'github.com/xmapst/otteralert.GoVersion=${GO_VERSION}' \
+  -X 'github.com/xmapst/otteralert.GitUrl=${GIT_URL}' \
+  -X 'github.com/xmapst/otteralert.GitBranch=${GIT_BRANCH}' \
+  -X 'github.com/xmapst/otteralert.GitCommit=${GIT_COMMIT}' \
+  -X 'github.com/xmapst/otteralert.GitLatestTag=${GIT_LATEST_TAG}' \
+  -X 'github.com/xmapst/otteralert.BuildTime=${BUILD_TIME}'" \
   -o otter-alert \
   cmd/otter-alert.go \
   && strip --strip-unneeded otter-alert \
