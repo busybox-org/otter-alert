@@ -10,7 +10,7 @@ require (
 	github.com/json-iterator/go v1.1.11
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.6.1
-	gorm.io/driver/mysql v1.3.6
+	gorm.io/driver/mysql v1.4.4
 	gorm.io/gorm v1.24.1
 )
 
