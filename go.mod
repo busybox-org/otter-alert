@@ -8,7 +8,7 @@ require (
 	github.com/dgraph-io/badger/v3 v3.2103.5
 	github.com/go-zookeeper/zk v1.0.3
 	github.com/json-iterator/go v1.1.12
-	github.com/sirupsen/logrus v1.9.0
+	github.com/sirupsen/logrus v1.9.2
 	github.com/spf13/cobra v1.7.0
 	gorm.io/driver/mysql v1.5.1
 	gorm.io/gorm v1.25.1
