@@ -9,7 +9,7 @@
 
 ## Deployment
 ```shell
-kubectl apply -f https://raw.githubusercontent.com/xmapst/otter-alert/main/k8s.yaml
+kubectl apply -f https://raw.githubusercontent.com/busybox-org/otter-alert/main/k8s.yaml
 ```
 
 ## HELP
@@ -18,27 +18,14 @@ kubectl apply -f https://raw.githubusercontent.com/xmapst/otter-alert/main/k8s.y
 A simple otter alert monitor
 
 Usage:
-  otter-alert [flags]
+  ./bin/otter-alert [flags]
 
 Flags:
-  -h, --help                         help for otter-alert
-      --interval duration            monitoring interval. 
-                                     --interval=5m (default 5m0s)
-      --manager.database string      otter manager database address string. 
-                                     --manager.database=user:pass@tcp(127.0.0.1:3306)/otter?charset=utf8&parseTime=True&loc=Local
-      --manager.endpoint string      otter manager endpoint. 
-                                     --manager.endpoint=http://127.0.0.1:8080
-      --manager.password string      otter manager login password. 
-                                     --manager.password=admin
-      --manager.username string      otter manager login username. 
-                                     --manager.username=admin
-      --notification.secret string   notification send secret. 
-                                     --notification.secret=SEC-xxx
-      --notification.type string     notification send type. 
-                                     --notification.type=dingtalk
-      --notification.url string      notification send url. 
-                                     --notification.url=https://oapi.dingtalk.com/robot/send?access_token=xxxxx
-  -v, --version                      version for otter-alert
-      --zookeeper strings            connection zookeeper address string. 
-                                     --zookeeper=zk-node-1:2181,zk-node-2:2181,zk-node-3:2181
+      --alert_ak string            Access key for alerting (required)
+      --alert_sk string            Secret key for alerting (Optional)
+      --cron string                Cron expression for automatic execution (Optional) (default "*/30 * * * * *")
+  -h, --help                       help for ./bin/otter-alert
+      --manager.database string    Otter manager database address string (default "username:password@tcp(host:port)/database?charset=utf8&parseTime=True&loc=Local")
+      --manager.endpoint string    Otter manager web endpoint (default "http://username:password@host:port")
+      --manager.zookeeper string   Otter manager zookeeper address (default "host:port,host:port,host:port")
 ```

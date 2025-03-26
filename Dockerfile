@@ -1,47 +1,39 @@
 #docker build --network host --rm --build-arg APP_ROOT=/go/src/otteralter -t 172.16.127.171:10001/otteralter:<tag> -f Dockerfile .
 #0 ----------------------------
-FROM golang:1.19
-ARG  APP_ROOT
-WORKDIR ${APP_ROOT}
-COPY ./ ${APP_ROOT}
+FROM golang:latest AS builder
 
-ENV GO111MODULE=on
-ENV GOPROXY="https://goproxy.io/,direct"
-ENV PATH=$GOPATH/bin:$PATH
+WORKDIR /workspace
 
-# install upx
-RUN sed -i "s/deb.debian.org/mirrors.aliyun.com/g" /etc/apt/sources.list \
-  && sed -i "s/security.debian.org/mirrors.aliyun.com/g" /etc/apt/sources.list \
-  && apt-get update \
-  && apt-get install upx musl-dev git -y
+# Copy the Go Modules manifests
+COPY go.mod go.mod
+COPY go.sum go.sum
+# cache deps before building and copying source so that we don't need to re-download as much
+# and so that source changes don't invalidate our downloaded layer
+RUN go mod download
+
+
+# Copy the go source
+COPY cmd/main.go cmd/main.go
+COPY internal/ internal/
+
+# Install upx
+RUN sed -i "s/deb.debian.org/mirrors.aliyun.com/g" /etc/apt/sources.list.d/* \
+    && sed -i "s/security.debian.org/mirrors.aliyun.com/g" /etc/apt/sources.list.d/* \
+    && apt-get update \
+    && apt-get install git tar xz-utils -y \
+	&& wget https://github.com/upx/upx/releases/download/v5.0.0/upx-5.0.0-amd64_linux.tar.xz \
+	&& tar -xf upx-5.0.0-amd64_linux.tar.xz \
+	&& mv upx-5.0.0-amd64_linux/upx /usr/local/bin/upx \
+	&& rm -rf upx-5.0.0-amd64_linux*
 
 # build code
-RUN GO_VERSION=`go version|awk '{print $3" "$4}'` \
-  && GIT_URL=`git remote -v|grep push|awk '{print $2}'` \
-  && GIT_BRANCH=`git rev-parse --abbrev-ref HEAD` \
-  && GIT_COMMIT=`git rev-parse HEAD` \
-  && VERSION=`git describe --tags --abbrev=0` \
-  && GIT_LATEST_TAG=`git describe --tags --abbrev=0` \
-  && BUILD_TIME=`date +"%Y-%m-%d %H:%M:%S %Z"` \
-  && go mod tidy \
-  && go get \
-  && CGO_ENABLED=0 GOOS=linux go build -ldflags \
-  "-w -s -X 'github.com/xmapst/otteralert.Version=${VERSION}' \
-  -X 'github.com/xmapst/otteralert.GoVersion=${GO_VERSION}' \
-  -X 'github.com/xmapst/otteralert.GitUrl=${GIT_URL}' \
-  -X 'github.com/xmapst/otteralert.GitBranch=${GIT_BRANCH}' \
-  -X 'github.com/xmapst/otteralert.GitCommit=${GIT_COMMIT}' \
-  -X 'github.com/xmapst/otteralert.GitLatestTag=${GIT_LATEST_TAG}' \
-  -X 'github.com/xmapst/otteralert.BuildTime=${BUILD_TIME}'" \
-  -o otter-alert \
-  cmd/otter-alert.go \
+RUN CGO_ENABLED=0 go build -a -trimpath -ldflags '-w -s' -o otter-alert cmd/main.go \
   && strip --strip-unneeded otter-alert \
   && upx --lzma otter-alert
 
 FROM alpine:latest
-ARG APP_ROOT
-WORKDIR /app/
-COPY --from=0 ${APP_ROOT}/otter-alert .
+WORKDIR /app
+COPY --from=builder /workspace/otter-alert .
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories \
   && apk add --no-cache openssh jq curl busybox-extras \
   && rm -rf /var/cache/apk/*
