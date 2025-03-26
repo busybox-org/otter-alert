@@ -16,20 +16,8 @@ RUN go mod download
 COPY cmd/main.go cmd/main.go
 COPY internal/ internal/
 
-# Install upx
-RUN sed -i "s/deb.debian.org/mirrors.aliyun.com/g" /etc/apt/sources.list.d/* \
-    && sed -i "s/security.debian.org/mirrors.aliyun.com/g" /etc/apt/sources.list.d/* \
-    && apt-get update \
-    && apt-get install git tar xz-utils -y \
-	&& wget https://github.com/upx/upx/releases/download/v5.0.0/upx-5.0.0-amd64_linux.tar.xz \
-	&& tar -xf upx-5.0.0-amd64_linux.tar.xz \
-	&& mv upx-5.0.0-amd64_linux/upx /usr/local/bin/upx \
-	&& rm -rf upx-5.0.0-amd64_linux*
-
 # build code
-RUN CGO_ENABLED=0 go build -a -trimpath -ldflags '-w -s' -o otter-alert cmd/main.go \
-  && strip --strip-unneeded otter-alert \
-  && upx --lzma otter-alert
+RUN CGO_ENABLED=0 go build -a -trimpath -ldflags '-w -s' -o otter-alert cmd/main.go
 
 FROM alpine:latest
 WORKDIR /app
