@@ -93,7 +93,7 @@ func (p *sProgram) Start(s service.Service) (err error) {
 					} else {
 						if aType, ok := p.alertData[channel.Name]; ok {
 							delete(p.alertData, channel.Name)
-							p.alertResolve(channel.Name, delayTime, syncTime, state, binlog, aType)
+							p.alertResolve(channel.Name, state, delayTime, syncTime, binlog, aType)
 						}
 					}
 				}
@@ -121,7 +121,7 @@ func (p *sProgram) Start(s service.Service) (err error) {
 					if atype, ok := p.alertData[channel.Name+"_pause"]; ok {
 						// 删除map数据发送恢复正常信息
 						delete(p.alertData, channel.Name+"_pause")
-						p.alertResolve(channel.Name, delayTime, syncTime, state, binlog, atype)
+						p.alertResolve(channel.Name, state, delayTime, syncTime, binlog, atype)
 					}
 					logx.Infof("ChannelName:%s ChannelId:%d State:%s Delay:%ss", channel.Name, channelID, state, delayTime)
 				}
