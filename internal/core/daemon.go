@@ -83,7 +83,7 @@ func (p *sProgram) Start(s service.Service) (err error) {
 					continue
 				}
 				delayTime := fmt.Sprintf("%.2f", float32(delaystat.DelayTtime)/float32(1000))
-				syncTime := delaystat.GMTCreate.Format("2006-01-02 15:04:05")
+				syncTime := delaystat.GMTCreate.In(time.Local).Format("2006-01-02 15:04:05")
 				// 延迟过大检查
 				if state == "START" && len(state) != 0 && state != "STOP" {
 					if len(channel.Name) != 0 && delaystat.DelayTtime > 60000 {
