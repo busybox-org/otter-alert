@@ -4,7 +4,7 @@ go 1.23.0
 
 require (
 	github.com/go-zookeeper/zk v1.0.4
-	github.com/imroc/req/v3 v3.51.0
+	github.com/imroc/req/v3 v3.52.1
 	github.com/kardianos/service v1.2.2
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/spf13/cobra v1.9.1
@@ -24,6 +24,7 @@ require (
 	github.com/google/pprof v0.0.0-20250423184734-337e5dd93bb4 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
+	github.com/icholy/digest v1.1.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
