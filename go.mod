@@ -10,7 +10,7 @@ require (
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/pflag v1.0.6
 	github.com/tidwall/gjson v1.18.0
-	github.com/xmapst/logx v1.0.4
+	github.com/xmapst/logx v1.0.6
 	gorm.io/driver/mysql v1.5.7
 	gorm.io/gorm v1.26.1
 )
