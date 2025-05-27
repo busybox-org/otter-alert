@@ -4,7 +4,7 @@ go 1.23.0
 
 require (
 	github.com/go-zookeeper/zk v1.0.4
-	github.com/imroc/req/v3 v3.52.1
+	github.com/imroc/req/v3 v3.52.2
 	github.com/kardianos/service v1.2.2
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/spf13/cobra v1.9.1
